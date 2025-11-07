@@ -61,9 +61,47 @@ def compare_pyramid_levels(hand_lap, eye_lap, mask_gp, hand_rgb, eye_rgb,
     blended_lap = blend_pyramids_at_level(hand_lap_full, eye_lap_full,
                                          mask_gp_full, levels=None)
 
+    # Save blended Laplacian pyramid levels for visualization
+    print(f"  Saving blended Laplacian pyramid levels...")
+
+    # Create blend_laplacian directory
+    blend_lap_dir = os.path.join(output_dir, 'pyramids', 'blend_laplacian')
+    os.makedirs(blend_lap_dir, exist_ok=True)
+
+    for level in range(len(blended_lap)):
+        lap_level = blended_lap[level]
+
+        # Normalize Laplacian for visualization
+        # Laplacian values are centered around 0, need to shift to [0, 1]
+        lap_normalized = lap_level.copy()
+
+        # Shift and scale to make visible
+        # Most values are near 0, so we enhance contrast
+        lap_min = lap_normalized.min()
+        lap_max = lap_normalized.max()
+        lap_range = lap_max - lap_min
+
+        if lap_range > 0:
+            # Normalize to [0, 1]
+            lap_normalized = (lap_normalized - lap_min) / lap_range
+        else:
+            lap_normalized = np.zeros_like(lap_normalized)
+
+        # Resize to 640×480 for consistent visualization
+        if lap_normalized.shape[:2] != (480, 640):
+            lap_display = cv2.resize(lap_normalized, (640, 480))
+        else:
+            lap_display = lap_normalized
+
+        # Save to pyramids/blend_laplacian/
+        lap_path = os.path.join(blend_lap_dir, f'laplacian_level_{level}.jpg')
+        save_image(lap_display, lap_path)
+
+    print(f"    ✓ Saved {len(blended_lap)} Laplacian levels")
+
     # Now reconstruct to different stopping levels
     for stop_level in range(6):
-        print(f"  Generating {stop_level}level.jpg (stop reconstruction at level {stop_level})...")
+        print(f"  Generating pyramid_blend_{stop_level}level.jpg (stop reconstruction at level {stop_level})...")
 
         # Reconstruct with stopping point
         blended = reconstruct_from_laplacian(blended_lap,
@@ -72,9 +110,9 @@ def compare_pyramid_levels(hand_lap, eye_lap, mask_gp, hand_rgb, eye_rgb,
 
         results[stop_level] = blended
 
-        # Save result
+        # Save result with new naming: pyramid_blend_0level.jpg ~ pyramid_blend_5level.jpg
         output_path = os.path.join(output_dir, 'blending_results',
-                                  f'{stop_level}level.jpg')
+                                  f'pyramid_blend_{stop_level}level.jpg')
         save_image(blended, output_path)
 
         # Calculate metrics if reference provided
