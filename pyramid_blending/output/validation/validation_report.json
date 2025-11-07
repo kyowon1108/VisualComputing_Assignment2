@@ -1,18 +1,18 @@
 {
   "title": "Pyramid Blending Algorithm Verification Report",
-  "timestamp": "2025-11-07T22:36:46.215495",
+  "timestamp": "2025-11-07T23:40:44.171820",
   "overall_status": "WARNING",
   "summary": {
-    "total_checks": 38,
-    "passed_checks": 35,
-    "failed_checks": 3,
-    "pass_rate": "92.1%",
+    "total_checks": 24,
+    "passed_checks": 22,
+    "failed_checks": 2,
+    "pass_rate": "91.7%",
     "warnings": []
   },
   "phases": {
     "phase_1": {
       "title": "Gaussian Pyramid Verification",
-      "timestamp": "2025-11-07T22:36:46.123406",
+      "timestamp": "2025-11-07T23:40:44.111165",
       "checks": {
         "size_validation": {
           "all_valid": true,
@@ -161,7 +161,7 @@
     },
     "phase_1_opencv_vs_raw": {
       "title": "OpenCV vs Raw Implementation Comparison",
-      "timestamp": "2025-11-07T22:36:46.131598",
+      "timestamp": "2025-11-07T23:40:44.119815",
       "levels": {
         "level_0": {
           "mse": 0.0,
@@ -216,7 +216,7 @@
     },
     "phase_2_reconstruction": {
       "title": "Laplacian Reconstruction Accuracy",
-      "timestamp": "2025-11-07T22:36:46.181387",
+      "timestamp": "2025-11-07T23:40:44.165736",
       "mse": 6.946611085432042e-21,
       "psnr": 201.5822701495591,
       "max_error": 2.9802322387695312e-08,
@@ -227,7 +227,7 @@
     },
     "phase_2_properties": {
       "title": "Laplacian Pyramid Properties",
-      "timestamp": "2025-11-07T22:36:46.182053",
+      "timestamp": "2025-11-07T23:40:44.165889",
       "levels": {
         "level_0": {
           "zero_percentage": 48.66200086805556,
@@ -341,7 +341,7 @@
     },
     "phase_3_mask": {
       "title": "Mask Properties Verification",
-      "timestamp": "2025-11-07T22:36:46.185021",
+      "timestamp": "2025-11-07T23:40:44.168321",
       "checks": {
         "center": {
           "expected": [
@@ -383,226 +383,6 @@
         }
       }
     },
-    "phase_3_blending": {
-      "level_0": {
-        "level": 0,
-        "mse": 0.0,
-        "max_diff": 0.0,
-        "valid": true,
-        "formula_correct": true,
-        "status": "✓"
-      },
-      "level_2": {
-        "level": 2,
-        "mse": 0.0,
-        "max_diff": 0.0,
-        "valid": true,
-        "formula_correct": true,
-        "status": "✓"
-      },
-      "level_4": {
-        "level": 4,
-        "mse": 0.0,
-        "max_diff": 0.0,
-        "valid": true,
-        "formula_correct": true,
-        "status": "✓"
-      }
-    },
-    "phase_4": {
-      "title": "Reconstruction Step-by-Step Verification",
-      "timestamp": "2025-11-07T22:36:46.197645",
-      "steps": {
-        "step_0_base": {
-          "description": "Base level (smallest)",
-          "shape": [
-            15,
-            20,
-            3
-          ],
-          "min": 0.14494532346725464,
-          "max": 0.9198758006095886,
-          "mean": 0.4043136537075043
-        },
-        "step_1": {
-          "after_pyrUp": {
-            "shape": [
-              30,
-              40,
-              3
-            ],
-            "min": 0.14642369747161865,
-            "max": 0.8931626081466675
-          },
-          "after_addition": {
-            "shape": [
-              30,
-              40,
-              3
-            ],
-            "min": 0.13277745246887207,
-            "max": 0.952041506767273,
-            "mean": 0.4050326645374298,
-            "value_range_ok": true
-          },
-          "size_match": true,
-          "valid": true
-        },
-        "step_2": {
-          "after_pyrUp": {
-            "shape": [
-              60,
-              80,
-              3
-            ],
-            "min": 0.13378983736038208,
-            "max": 0.9358329772949219
-          },
-          "after_addition": {
-            "shape": [
-              60,
-              80,
-              3
-            ],
-            "min": 0.12656676769256592,
-            "max": 0.9820926189422607,
-            "mean": 0.40500882267951965,
-            "value_range_ok": true
-          },
-          "size_match": true,
-          "valid": true
-        },
-        "step_3": {
-          "after_pyrUp": {
-            "shape": [
-              120,
-              160,
-              3
-            ],
-            "min": 0.12684346735477448,
-            "max": 0.9765375852584839
-          },
-          "after_addition": {
-            "shape": [
-              120,
-              160,
-              3
-            ],
-            "min": 0.12205038964748383,
-            "max": 0.989963173866272,
-            "mean": 0.4048692286014557,
-            "value_range_ok": true
-          },
-          "size_match": true,
-          "valid": true
-        },
-        "step_4": {
-          "after_pyrUp": {
-            "shape": [
-              240,
-              320,
-              3
-            ],
-            "min": 0.12241041660308838,
-            "max": 0.9878255128860474
-          },
-          "after_addition": {
-            "shape": [
-              240,
-              320,
-              3
-            ],
-            "min": 0.11387868225574493,
-            "max": 0.997717559337616,
-            "mean": 0.40478718280792236,
-            "value_range_ok": true
-          },
-          "size_match": true,
-          "valid": true
-        },
-        "step_5": {
-          "after_pyrUp": {
-            "shape": [
-              480,
-              640,
-              3
-            ],
-            "min": 0.11524970084428787,
-            "max": 0.9964231252670288
-          },
-          "after_addition": {
-            "shape": [
-              480,
-              640,
-              3
-            ],
-            "min": -4.902482032775879e-06,
-            "max": 1.0,
-            "mean": 0.4047338664531708,
-            "value_range_ok": true
-          },
-          "size_match": true,
-          "valid": true
-        }
-      },
-      "all_steps_valid": true
-    },
-    "phase_5": {
-      "title": "Final Result Quality Verification",
-      "timestamp": "2025-11-07T22:36:46.199469",
-      "checks": {
-        "size": {
-          "expected": [
-            480,
-            640,
-            3
-          ],
-          "actual": [
-            480,
-            640,
-            3
-          ],
-          "valid": true,
-          "status": "✓"
-        },
-        "value_range": {
-          "min": -4.902482032775879e-06,
-          "max": 1.0,
-          "valid": false,
-          "clipping_needed": true,
-          "status": "✗"
-        },
-        "hand_preservation": {
-          "region_similarity": 0.9998218330729287,
-          "mse": 0.00017816692707128823,
-          "valid": true,
-          "interpretation": "Hand features preserved",
-          "status": "✓"
-        },
-        "eye_visibility": {
-          "result_intensity": 0.521557629108429,
-          "original_intensity": 0.3444279730319977,
-          "difference": 0.17712965607643127,
-          "valid": true,
-          "interpretation": "Eye visible and clear",
-          "status": "✓"
-        },
-        "boundary_smoothness": {
-          "std_in_transition": 0.14321880042552948,
-          "valid": true,
-          "interpretation": "Smooth boundary",
-          "status": "✓"
-        },
-        "color_balance": {
-          "r_mean": 0.47187677025794983,
-          "g_mean": 0.3944936990737915,
-          "b_mean": 0.3478315770626068,
-          "balance_score": 0.05115630002621506,
-          "valid": true,
-          "interpretation": "Balanced colors",
-          "status": "✓"
-        }
-      }
-    }
+    "phase_3_blending": {}
   }
 }

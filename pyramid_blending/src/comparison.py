@@ -12,10 +12,14 @@ def compare_pyramid_levels(hand_lap, eye_lap, mask_gp, hand_rgb, eye_rgb,
     """
     Compare different pyramid levels: 3 vs 5 vs 6
 
+    IMPORTANT: Each level comparison must use pyramids built with that specific
+    number of levels. Using a 6-level pyramid for 3-level blending will fail
+    because the base level won't be the proper Gaussian base.
+
     Args:
-        hand_lap: Hand Laplacian pyramid
-        eye_lap: Eye Laplacian pyramid
-        mask_gp: Mask Gaussian pyramid
+        hand_lap: Hand Laplacian pyramid (ignored, will rebuild for each level)
+        eye_lap: Eye Laplacian pyramid (ignored, will rebuild for each level)
+        mask_gp: Mask Gaussian pyramid (ignored, will rebuild for each level)
         hand_rgb: Hand RGB image (for reference)
         eye_rgb: Eye RGB image (for reference)
         output_dir: Output directory
@@ -25,29 +29,58 @@ def compare_pyramid_levels(hand_lap, eye_lap, mask_gp, hand_rgb, eye_rgb,
         results: Dictionary mapping level count to blended image
         metrics_dict: Dictionary of metrics
     """
-    print("\n[Comparison] Pyramid Levels (3 vs 5 vs 6)")
+    from .pyramid_generation import gaussian_pyramid_opencv, laplacian_pyramid
+
+    print("\n[Comparison] Pyramid Reconstruction Levels (0-5)")
 
     results = {}
     metrics_dict = {}
 
-    levels_to_test = [3, 5, 6]
+    # Build ONE 6-level pyramid for everything
+    max_levels = 6
 
-    for levels in levels_to_test:
-        print(f"  Testing {levels}-level pyramid...")
+    # Create mask from hand_rgb
+    import cv2
+    import numpy as np
+    from .preprocessing import create_mask
 
-        # Blend using specified number of levels
-        blended = pyramid_blending(hand_lap, eye_lap, mask_gp, levels)
-        results[levels] = blended
+    mask = create_mask(shape=(hand_rgb.shape[0], hand_rgb.shape[1]),
+                      center=(325, 315), axes=(48, 36),
+                      blur_kernel=31, output_dir=None)
+
+    print(f"  Building {max_levels}-level pyramid...")
+    hand_gp, _ = gaussian_pyramid_opencv(hand_rgb, max_levels)
+    eye_gp, _ = gaussian_pyramid_opencv(eye_rgb, max_levels)
+    mask_gp_full, _ = gaussian_pyramid_opencv(mask, max_levels)
+
+    hand_lap_full = laplacian_pyramid(hand_gp)
+    eye_lap_full = laplacian_pyramid(eye_gp)
+
+    # Blend the pyramids (once)
+    from .reconstruction import blend_pyramids_at_level, reconstruct_from_laplacian
+    blended_lap = blend_pyramids_at_level(hand_lap_full, eye_lap_full,
+                                         mask_gp_full, levels=None)
+
+    # Now reconstruct to different stopping levels
+    for stop_level in range(6):
+        print(f"  Generating {stop_level}level.jpg (stop reconstruction at level {stop_level})...")
+
+        # Reconstruct with stopping point
+        blended = reconstruct_from_laplacian(blended_lap,
+                                            target_shape=(480, 640),
+                                            stop_at_level=stop_level)
+
+        results[stop_level] = blended
 
         # Save result
         output_path = os.path.join(output_dir, 'blending_results',
-                                  f'pyramid_{levels}level.jpg')
+                                  f'{stop_level}level.jpg')
         save_image(blended, output_path)
 
         # Calculate metrics if reference provided
         if reference is not None:
             metrics = calculate_metrics(blended, reference)
-            metrics_dict[f'pyramid_{levels}level'] = metrics
+            metrics_dict[f'{stop_level}level'] = metrics
             print(f"    ✓ SSIM: {metrics['ssim']:.4f}, MSE: {metrics['mse']:.4f}")
 
     return results, metrics_dict
@@ -92,18 +125,9 @@ def compare_direct_vs_pyramid(hand_img, eye_img, mask, hand_lap, eye_lap,
         print(f"    ✓ SSIM: {metrics['ssim']:.4f}, MSE: {metrics['mse']:.4f}")
 
     # Pyramid blending (5-level)
-    print("  Testing pyramid blending (5-level)...")
-    pyramid_result = pyramid_blending(hand_lap, eye_lap, mask_gp, 5)
-    results['pyramid_5'] = pyramid_result
-
-    # Save result
-    output_path = os.path.join(output_dir, 'blending_results', 'pyramid_5level.jpg')
-    save_image(pyramid_result, output_path)
-
-    if reference is not None:
-        metrics = calculate_metrics(pyramid_result, reference)
-        metrics_dict['pyramid_5level'] = metrics
-        print(f"    ✓ SSIM: {metrics['ssim']:.4f}, MSE: {metrics['mse']:.4f}")
+    # NOTE: This is now handled by compare_pyramid_levels
+    # Don't save here to avoid overwriting the correct result
+    print("  (5-level pyramid already tested in compare_pyramid_levels)")
 
     return results, metrics_dict
 

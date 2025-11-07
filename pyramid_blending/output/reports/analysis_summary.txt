@@ -4,10 +4,40 @@ Image Pyramid Blending - Analysis Summary
 Best Performers:
   - Highest SSIM: direct_blending (1.0000)
   - Lowest MSE: direct_blending (0.0000)
-  - Highest PSNR: pyramid_6level (32.07)
+  - Highest PSNR: 0level (32.07)
 
 Detailed Metrics:
 --------------------------------------------------------------------------------
+
+0level:
+  SSIM: 0.9924
+  MSE:  0.0006
+  PSNR: 32.07
+
+1level:
+  SSIM: 0.7633
+  MSE:  0.0012
+  PSNR: 29.33
+
+2level:
+  SSIM: 0.6966
+  MSE:  0.0018
+  PSNR: 27.41
+
+3level:
+  SSIM: 0.6606
+  MSE:  0.0033
+  PSNR: 24.82
+
+4level:
+  SSIM: 0.6368
+  MSE:  0.0065
+  PSNR: 21.88
+
+5level:
+  SSIM: 0.6235
+  MSE:  0.0121
+  PSNR: 19.18
 
 direct_blending:
   SSIM: 1.0000
@@ -15,24 +45,9 @@ direct_blending:
   PSNR: inf
 
 lab_blend_5level:
-  SSIM: 0.8022
-  MSE:  0.0325
-  PSNR: 14.88
-
-pyramid_3level:
-  SSIM: -0.0159
-  MSE:  0.1997
-  PSNR: 7.00
-
-pyramid_5level:
-  SSIM: -0.0591
-  MSE:  0.1904
-  PSNR: 7.20
-
-pyramid_6level:
-  SSIM: 0.9924
-  MSE:  0.0006
-  PSNR: 32.07
+  SSIM: 0.8553
+  MSE:  0.0339
+  PSNR: 14.70
 
 ================================================================================
 

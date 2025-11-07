@@ -5,13 +5,16 @@ import cv2
 import numpy as np
 
 
-def reconstruct_from_laplacian(lap_pyramid, target_shape=None):
+def reconstruct_from_laplacian(lap_pyramid, target_shape=None, debug=False, stop_at_level=None):
     """
     Reconstruct image from Laplacian pyramid
 
     Args:
         lap_pyramid: List of Laplacian levels [L0, L1, ..., Ln-1, Gn]
         target_shape: Optional target shape for final image (H, W)
+        debug: If True, print intermediate min/max values
+        stop_at_level: If specified, stop reconstruction at this level (0=finest)
+                      None means reconstruct all the way to level 0
 
     Returns:
         reconstructed: Reconstructed image
@@ -19,8 +22,24 @@ def reconstruct_from_laplacian(lap_pyramid, target_shape=None):
     # Start from the smallest level (last element)
     result = lap_pyramid[-1].copy()
 
+    if debug:
+        print(f"\n[Reconstruction Debug]")
+        print(f"  Base level: min={result.min():.4f}, max={result.max():.4f}")
+
+    # Determine stopping point
+    # If stop_at_level=None, go all the way to 0
+    # If stop_at_level=2, stop at level 2 (don't add L1, L0)
+    if stop_at_level is None:
+        stop_at_level = 0
+
     # Reconstruct from bottom to top
     for i in range(len(lap_pyramid) - 2, -1, -1):
+        # Check if we should stop here
+        if i < stop_at_level:
+            if debug:
+                print(f"  Stopping at level {stop_at_level} (skipping L{i} and below)")
+            break
+
         # Upsample result
         result = cv2.pyrUp(result)
 
@@ -34,10 +53,26 @@ def reconstruct_from_laplacian(lap_pyramid, target_shape=None):
         # Add Laplacian
         result = result + L_i
 
+        if debug:
+            print(f"  After adding L{i}: min={result.min():.4f}, max={result.max():.4f}")
+
+        # CRITICAL FIX: Clip values to [0, 1] to prevent negative accumulation
+        # Without this, negative values accumulate and become 0 (black) when converted to uint8
+        result = np.clip(result, 0, 1.0)
+
+        if debug:
+            print(f"  After clipping: min={result.min():.4f}, max={result.max():.4f}")
+
     # If target shape is specified, resize to match
     if target_shape is not None:
         if result.shape[:2] != target_shape:
             result = cv2.resize(result, (target_shape[1], target_shape[0]))
+
+    # Final safety clip
+    result = np.clip(result, 0, 1.0)
+
+    if debug:
+        print(f"  Final result: min={result.min():.4f}, max={result.max():.4f}")
 
     return result
 

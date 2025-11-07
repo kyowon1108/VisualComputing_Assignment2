@@ -1,18 +1,33 @@
 {
-  "pyramid_3level": {
-    "ssim": -0.0159,
-    "mse": 0.1997,
-    "psnr": 7.0
-  },
-  "pyramid_5level": {
-    "ssim": -0.0591,
-    "mse": 0.1904,
-    "psnr": 7.2
-  },
-  "pyramid_6level": {
+  "0level": {
     "ssim": 0.9924,
     "mse": 0.0006,
     "psnr": 32.07
+  },
+  "1level": {
+    "ssim": 0.7633,
+    "mse": 0.0012,
+    "psnr": 29.33
+  },
+  "2level": {
+    "ssim": 0.6966,
+    "mse": 0.0018,
+    "psnr": 27.41
+  },
+  "3level": {
+    "ssim": 0.6606,
+    "mse": 0.0033,
+    "psnr": 24.82
+  },
+  "4level": {
+    "ssim": 0.6368,
+    "mse": 0.0065,
+    "psnr": 21.88
+  },
+  "5level": {
+    "ssim": 0.6235,
+    "mse": 0.0121,
+    "psnr": 19.18
   },
   "direct_blending": {
     "ssim": 1.0,
@@ -20,8 +35,8 @@
     "psnr": "inf"
   },
   "lab_blend_5level": {
-    "ssim": 0.8022,
-    "mse": 0.0325,
-    "psnr": 14.88
+    "ssim": 0.8553,
+    "mse": 0.0339,
+    "psnr": 14.7
   }
 }
