@@ -12,7 +12,7 @@ ENV/
 env/
 
 # Output files (generated results)
-output/
+pyramid_blending/output/
 
 # IDE
 .vscode/
@@ -41,5 +41,6 @@ compare_*.py
 *.log
 *.bak
 
-# Documentation drafts
-*_prompt.md
+# Documentation drafts and prompts
+*.md
+!pyramid_blending/README.md
