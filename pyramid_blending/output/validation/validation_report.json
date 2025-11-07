@@ -1,0 +1,608 @@
+{
+  "title": "Pyramid Blending Algorithm Verification Report",
+  "timestamp": "2025-11-07T22:36:46.215495",
+  "overall_status": "WARNING",
+  "summary": {
+    "total_checks": 38,
+    "passed_checks": 35,
+    "failed_checks": 3,
+    "pass_rate": "92.1%",
+    "warnings": []
+  },
+  "phases": {
+    "phase_1": {
+      "title": "Gaussian Pyramid Verification",
+      "timestamp": "2025-11-07T22:36:46.123406",
+      "checks": {
+        "size_validation": {
+          "all_valid": true,
+          "details": {
+            "level_0": {
+              "expected": [
+                480,
+                640
+              ],
+              "actual": [
+                480,
+                640
+              ],
+              "valid": true,
+              "status": "✓"
+            },
+            "level_1": {
+              "expected": [
+                240,
+                320
+              ],
+              "actual": [
+                240,
+                320
+              ],
+              "valid": true,
+              "status": "✓"
+            },
+            "level_2": {
+              "expected": [
+                120,
+                160
+              ],
+              "actual": [
+                120,
+                160
+              ],
+              "valid": true,
+              "status": "✓"
+            },
+            "level_3": {
+              "expected": [
+                60,
+                80
+              ],
+              "actual": [
+                60,
+                80
+              ],
+              "valid": true,
+              "status": "✓"
+            },
+            "level_4": {
+              "expected": [
+                30,
+                40
+              ],
+              "actual": [
+                30,
+                40
+              ],
+              "valid": true,
+              "status": "✓"
+            },
+            "level_5": {
+              "expected": [
+                15,
+                20
+              ],
+              "actual": [
+                15,
+                20
+              ],
+              "valid": true,
+              "status": "✓"
+            }
+          }
+        },
+        "range_validation": {
+          "all_valid": true,
+          "details": {
+            "level_0": {
+              "min": 0.0,
+              "max": 1.0,
+              "valid": true,
+              "status": "✓"
+            },
+            "level_1": {
+              "min": 0.11387868225574493,
+              "max": 0.997717559337616,
+              "valid": true,
+              "status": "✓"
+            },
+            "level_2": {
+              "min": 0.12205038964748383,
+              "max": 0.989963173866272,
+              "valid": true,
+              "status": "✓"
+            },
+            "level_3": {
+              "min": 0.12656676769256592,
+              "max": 0.9820926189422607,
+              "valid": true,
+              "status": "✓"
+            },
+            "level_4": {
+              "min": 0.13277745246887207,
+              "max": 0.9660622477531433,
+              "valid": true,
+              "status": "✓"
+            },
+            "level_5": {
+              "min": 0.14494532346725464,
+              "max": 0.9437688589096069,
+              "valid": true,
+              "status": "✓"
+            }
+          }
+        },
+        "variance_monotonic": {
+          "valid": true,
+          "variances": [
+            0.04192130267620087,
+            0.04119731858372688,
+            0.040460191667079926,
+            0.03893139213323593,
+            0.035788360983133316,
+            0.030812153592705727
+          ],
+          "status": "✓"
+        },
+        "edge_energy": {
+          "energies": [
+            4428516.0,
+            406796.0,
+            89674.0,
+            32451.0,
+            14896.0,
+            5089.0
+          ],
+          "decreasing": true,
+          "explanation": "Edge energy should decrease with level (more blur)"
+        }
+      },
+      "overall_valid": true
+    },
+    "phase_1_opencv_vs_raw": {
+      "title": "OpenCV vs Raw Implementation Comparison",
+      "timestamp": "2025-11-07T22:36:46.131598",
+      "levels": {
+        "level_0": {
+          "mse": 0.0,
+          "ssim": 1.0,
+          "max_pixel_diff": 0.0,
+          "valid": true,
+          "expected_ssim": 0.95,
+          "status": "✓"
+        },
+        "level_1": {
+          "mse": 1.961866900046516e-07,
+          "ssim": 0.9999752044677734,
+          "max_pixel_diff": 0.02484685182571411,
+          "valid": true,
+          "expected_ssim": 0.95,
+          "status": "✓"
+        },
+        "level_2": {
+          "mse": 1.4353724964166759e-07,
+          "ssim": 0.9999806880950928,
+          "max_pixel_diff": 0.015787631273269653,
+          "valid": true,
+          "expected_ssim": 0.95,
+          "status": "✓"
+        },
+        "level_3": {
+          "mse": 1.1625067486420448e-07,
+          "ssim": 0.9999871253967285,
+          "max_pixel_diff": 0.006291717290878296,
+          "valid": true,
+          "expected_ssim": 0.95,
+          "status": "✓"
+        },
+        "level_4": {
+          "mse": 1.8713772931278072e-07,
+          "ssim": 0.9999883770942688,
+          "max_pixel_diff": 0.005965560674667358,
+          "valid": true,
+          "expected_ssim": 0.95,
+          "status": "✓"
+        },
+        "level_5": {
+          "mse": 3.0352853173098993e-06,
+          "ssim": 0.9999644160270691,
+          "max_pixel_diff": 0.03483694791793823,
+          "valid": true,
+          "expected_ssim": 0.95,
+          "status": "✓"
+        }
+      },
+      "all_valid": true
+    },
+    "phase_2_reconstruction": {
+      "title": "Laplacian Reconstruction Accuracy",
+      "timestamp": "2025-11-07T22:36:46.181387",
+      "mse": 6.946611085432042e-21,
+      "psnr": 201.5822701495591,
+      "max_error": 2.9802322387695312e-08,
+      "mean_error": 7.144586029565747e-13,
+      "valid": true,
+      "expected_psnr": 40.0,
+      "status": "✓"
+    },
+    "phase_2_properties": {
+      "title": "Laplacian Pyramid Properties",
+      "timestamp": "2025-11-07T22:36:46.182053",
+      "levels": {
+        "level_0": {
+          "zero_percentage": 48.66200086805556,
+          "mean": -1.1774974154832307e-05,
+          "std": 0.0217615757137537,
+          "shape": [
+            480,
+            640,
+            3
+          ],
+          "min": -0.2642004191875458,
+          "max": 0.25420111417770386,
+          "properties_valid": {
+            "is_sparse": true,
+            "is_zero_centered": true,
+            "has_detail": true
+          },
+          "all_valid": true
+        },
+        "level_1": {
+          "zero_percentage": 79.2951388888889,
+          "mean": -7.695148269704077e-06,
+          "std": 0.015697268769145012,
+          "shape": [
+            240,
+            320,
+            3
+          ],
+          "min": -0.21517491340637207,
+          "max": 0.13845866918563843,
+          "properties_valid": {
+            "is_sparse": true,
+            "is_zero_centered": true,
+            "has_detail": true
+          },
+          "all_valid": true
+        },
+        "level_2": {
+          "zero_percentage": 80.21006944444444,
+          "mean": -3.849752101814374e-05,
+          "std": 0.022135471925139427,
+          "shape": [
+            120,
+            160,
+            3
+          ],
+          "min": -0.26511019468307495,
+          "max": 0.1777505874633789,
+          "properties_valid": {
+            "is_sparse": true,
+            "is_zero_centered": true,
+            "has_detail": true
+          },
+          "all_valid": true
+        },
+        "level_3": {
+          "zero_percentage": 67.86111111111111,
+          "mean": -0.00018897881091106683,
+          "std": 0.03525463491678238,
+          "shape": [
+            60,
+            80,
+            3
+          ],
+          "min": -0.27741312980651855,
+          "max": 0.2748766541481018,
+          "properties_valid": {
+            "is_sparse": true,
+            "is_zero_centered": true,
+            "has_detail": true
+          },
+          "all_valid": true
+        },
+        "level_4": {
+          "zero_percentage": 51.47222222222222,
+          "mean": -0.0008566933101974428,
+          "std": 0.05246656760573387,
+          "shape": [
+            30,
+            40,
+            3
+          ],
+          "min": -0.24674159288406372,
+          "max": 0.2853451371192932,
+          "properties_valid": {
+            "is_sparse": true,
+            "is_zero_centered": true,
+            "has_detail": true
+          },
+          "all_valid": true
+        },
+        "level_5": {
+          "zero_percentage": 0.0,
+          "mean": 0.4117773771286011,
+          "std": 0.17553390562534332,
+          "shape": [
+            15,
+            20,
+            3
+          ],
+          "min": 0.14494532346725464,
+          "max": 0.9437688589096069,
+          "properties_valid": {
+            "is_sparse": false,
+            "is_zero_centered": false,
+            "has_detail": true
+          },
+          "all_valid": false
+        }
+      }
+    },
+    "phase_3_mask": {
+      "title": "Mask Properties Verification",
+      "timestamp": "2025-11-07T22:36:46.185021",
+      "checks": {
+        "center": {
+          "expected": [
+            325,
+            315
+          ],
+          "actual": [
+            314.9829406738281,
+            325.0
+          ],
+          "error_pixels": 14.154203529130381,
+          "valid": false,
+          "status": "✗"
+        },
+        "axes": {
+          "expected": [
+            48,
+            36
+          ],
+          "actual": [
+            71.62873077392578,
+            95.2612533569336
+          ],
+          "valid": false,
+          "status": "✗"
+        },
+        "feathering": {
+          "max_gradient": 0.08117743581533432,
+          "mean_gradient": 0.0008672838448546827,
+          "quality": "smooth",
+          "valid": true,
+          "status": "✓"
+        },
+        "value_range": {
+          "min": 0.0,
+          "max": 1.0,
+          "valid": true,
+          "status": "✓"
+        }
+      }
+    },
+    "phase_3_blending": {
+      "level_0": {
+        "level": 0,
+        "mse": 0.0,
+        "max_diff": 0.0,
+        "valid": true,
+        "formula_correct": true,
+        "status": "✓"
+      },
+      "level_2": {
+        "level": 2,
+        "mse": 0.0,
+        "max_diff": 0.0,
+        "valid": true,
+        "formula_correct": true,
+        "status": "✓"
+      },
+      "level_4": {
+        "level": 4,
+        "mse": 0.0,
+        "max_diff": 0.0,
+        "valid": true,
+        "formula_correct": true,
+        "status": "✓"
+      }
+    },
+    "phase_4": {
+      "title": "Reconstruction Step-by-Step Verification",
+      "timestamp": "2025-11-07T22:36:46.197645",
+      "steps": {
+        "step_0_base": {
+          "description": "Base level (smallest)",
+          "shape": [
+            15,
+            20,
+            3
+          ],
+          "min": 0.14494532346725464,
+          "max": 0.9198758006095886,
+          "mean": 0.4043136537075043
+        },
+        "step_1": {
+          "after_pyrUp": {
+            "shape": [
+              30,
+              40,
+              3
+            ],
+            "min": 0.14642369747161865,
+            "max": 0.8931626081466675
+          },
+          "after_addition": {
+            "shape": [
+              30,
+              40,
+              3
+            ],
+            "min": 0.13277745246887207,
+            "max": 0.952041506767273,
+            "mean": 0.4050326645374298,
+            "value_range_ok": true
+          },
+          "size_match": true,
+          "valid": true
+        },
+        "step_2": {
+          "after_pyrUp": {
+            "shape": [
+              60,
+              80,
+              3
+            ],
+            "min": 0.13378983736038208,
+            "max": 0.9358329772949219
+          },
+          "after_addition": {
+            "shape": [
+              60,
+              80,
+              3
+            ],
+            "min": 0.12656676769256592,
+            "max": 0.9820926189422607,
+            "mean": 0.40500882267951965,
+            "value_range_ok": true
+          },
+          "size_match": true,
+          "valid": true
+        },
+        "step_3": {
+          "after_pyrUp": {
+            "shape": [
+              120,
+              160,
+              3
+            ],
+            "min": 0.12684346735477448,
+            "max": 0.9765375852584839
+          },
+          "after_addition": {
+            "shape": [
+              120,
+              160,
+              3
+            ],
+            "min": 0.12205038964748383,
+            "max": 0.989963173866272,
+            "mean": 0.4048692286014557,
+            "value_range_ok": true
+          },
+          "size_match": true,
+          "valid": true
+        },
+        "step_4": {
+          "after_pyrUp": {
+            "shape": [
+              240,
+              320,
+              3
+            ],
+            "min": 0.12241041660308838,
+            "max": 0.9878255128860474
+          },
+          "after_addition": {
+            "shape": [
+              240,
+              320,
+              3
+            ],
+            "min": 0.11387868225574493,
+            "max": 0.997717559337616,
+            "mean": 0.40478718280792236,
+            "value_range_ok": true
+          },
+          "size_match": true,
+          "valid": true
+        },
+        "step_5": {
+          "after_pyrUp": {
+            "shape": [
+              480,
+              640,
+              3
+            ],
+            "min": 0.11524970084428787,
+            "max": 0.9964231252670288
+          },
+          "after_addition": {
+            "shape": [
+              480,
+              640,
+              3
+            ],
+            "min": -4.902482032775879e-06,
+            "max": 1.0,
+            "mean": 0.4047338664531708,
+            "value_range_ok": true
+          },
+          "size_match": true,
+          "valid": true
+        }
+      },
+      "all_steps_valid": true
+    },
+    "phase_5": {
+      "title": "Final Result Quality Verification",
+      "timestamp": "2025-11-07T22:36:46.199469",
+      "checks": {
+        "size": {
+          "expected": [
+            480,
+            640,
+            3
+          ],
+          "actual": [
+            480,
+            640,
+            3
+          ],
+          "valid": true,
+          "status": "✓"
+        },
+        "value_range": {
+          "min": -4.902482032775879e-06,
+          "max": 1.0,
+          "valid": false,
+          "clipping_needed": true,
+          "status": "✗"
+        },
+        "hand_preservation": {
+          "region_similarity": 0.9998218330729287,
+          "mse": 0.00017816692707128823,
+          "valid": true,
+          "interpretation": "Hand features preserved",
+          "status": "✓"
+        },
+        "eye_visibility": {
+          "result_intensity": 0.521557629108429,
+          "original_intensity": 0.3444279730319977,
+          "difference": 0.17712965607643127,
+          "valid": true,
+          "interpretation": "Eye visible and clear",
+          "status": "✓"
+        },
+        "boundary_smoothness": {
+          "std_in_transition": 0.14321880042552948,
+          "valid": true,
+          "interpretation": "Smooth boundary",
+          "status": "✓"
+        },
+        "color_balance": {
+          "r_mean": 0.47187677025794983,
+          "g_mean": 0.3944936990737915,
+          "b_mean": 0.3478315770626068,
+          "balance_score": 0.05115630002621506,
+          "valid": true,
+          "interpretation": "Balanced colors",
+          "status": "✓"
+        }
+      }
+    }
+  }
+}

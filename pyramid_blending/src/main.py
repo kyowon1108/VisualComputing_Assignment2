@@ -20,6 +20,12 @@ from .metrics import (calculate_all_metrics, save_metrics_report,
 from .visualization import (visualize_pyramid_levels, visualize_blending_comparison,
                            plot_quality_metrics, plot_histogram_comparison,
                            visualize_level_comparison, visualize_pyramid_detailed_layout)
+from .validation import (verify_gaussian_pyramid, verify_opencv_vs_raw_equivalence,
+                        verify_laplacian_reconstruction_accuracy, verify_laplacian_properties,
+                        verify_mask_properties, verify_level_blending,
+                        verify_reconstruction_steps, verify_final_result_quality,
+                        generate_validation_report)
+from .reconstruction import reconstruct_from_laplacian, blend_pyramids_at_level
 
 
 def main():
@@ -225,6 +231,110 @@ def main():
     generate_analysis_summary(all_metrics,
                              os.path.join(reports_dir, 'analysis_summary.txt'))
 
+    # ========================================================================
+    # Phase 8: Validation Pipeline
+    # ========================================================================
+    print("\n" + "="*80)
+    print("[VALIDATION PHASE] Pyramid Blending Algorithm Verification")
+    print("="*80)
+    log_message("\n[VALIDATION PHASE] Starting validation", log_file=log_file)
+
+    validation_results = {}
+
+    # Phase 1: Gaussian Pyramid Verification
+    print("\n[Phase 1] Gaussian Pyramid 검증...")
+    log_message("[Validation Phase 1] Gaussian Pyramid Verification", log_file=log_file)
+    validation_results['phase_1'] = verify_gaussian_pyramid(
+        hand_gp_cv, eye_gp_cv, mask_gp_cv, levels
+    )
+
+    # Phase 1.5: OpenCV vs Raw Comparison
+    print("\n[Phase 1.5] OpenCV vs Raw 구현 비교...")
+    validation_results['phase_1_opencv_vs_raw'] = verify_opencv_vs_raw_equivalence(
+        hand_img, gaussian_pyramid_opencv, gaussian_pyramid_raw, levels
+    )
+
+    # Phase 2: Laplacian Pyramid Verification
+    print("\n[Phase 2] Laplacian Pyramid 검증...")
+    log_message("[Validation Phase 2] Laplacian Pyramid Verification", log_file=log_file)
+
+    # 2.1: Reconstruction accuracy
+    validation_results['phase_2_reconstruction'] = verify_laplacian_reconstruction_accuracy(
+        hand_img, gaussian_pyramid_opencv, laplacian_pyramid,
+        reconstruct_from_laplacian, levels
+    )
+
+    # 2.2: Laplacian properties
+    validation_results['phase_2_properties'] = verify_laplacian_properties(
+        hand_lap, eye_lap, levels
+    )
+
+    # Phase 3: Blending Process Verification
+    print("\n[Phase 3] Blending 프로세스 검증...")
+    log_message("[Validation Phase 3] Blending Process Verification", log_file=log_file)
+
+    # 3.1: Mask properties
+    validation_results['phase_3_mask'] = verify_mask_properties(
+        mask, (325, 315), (48, 36)
+    )
+
+    # 3.2: Level blending (check a few levels)
+    print("\n[Phase 3.2] 레벨별 블렌딩 검증...")
+    blending_checks = {}
+
+    # Create a test blended pyramid for validation
+    # Get the 6-level blended result
+    if 6 in all_results:
+        # We need to recreate the blended Laplacian pyramid for verification
+        # Use the blend_pyramids_at_level function from reconstruction
+        test_blended_lap = blend_pyramids_at_level(hand_lap, eye_lap, mask_gp_cv, levels)
+
+        # Check levels 0, 2, and 4
+        for check_level in [0, 2, 4]:
+            if check_level < len(test_blended_lap):
+                blend_check = verify_level_blending(
+                    hand_lap, eye_lap, mask_gp_cv, test_blended_lap, check_level
+                )
+                blending_checks[f'level_{check_level}'] = blend_check
+                status = blend_check['status']
+                print(f"  Level {check_level} 블렌딩 검증: {status}")
+
+    validation_results['phase_3_blending'] = blending_checks
+
+    # Phase 4: Reconstruction Verification
+    print("\n[Phase 4] Reconstruction 검증...")
+    log_message("[Validation Phase 4] Reconstruction Verification", log_file=log_file)
+
+    if 6 in all_results and 'test_blended_lap' in locals() and len(test_blended_lap) > 0:
+        validation_results['phase_4'] = verify_reconstruction_steps(
+            test_blended_lap, reconstruct_from_laplacian, levels
+        )
+
+    # Phase 5: Final Result Verification
+    print("\n[Phase 5] 최종 결과 품질 검증...")
+    log_message("[Validation Phase 5] Final Result Quality Verification", log_file=log_file)
+
+    # Use the 6-level pyramid blend result as the best result
+    if 6 in all_results:
+        final_result = all_results[6]
+        validation_results['phase_5'] = verify_final_result_quality(
+            final_result, hand_img, eye_img, mask
+        )
+
+    # Generate Validation Report
+    print("\n[Report] 검증 리포트 생성...")
+    log_message("[Validation] Generating validation report", log_file=log_file)
+
+    json_report, summary_report = generate_validation_report(
+        validation_results, output_dir
+    )
+
+    print("\n✓ Validation Complete!")
+    print(f"  - JSON Report: {json_report}")
+    print(f"  - Summary Report: {summary_report}")
+
+    log_message(f"Validation reports saved: {json_report}", log_file=log_file)
+
     # Final log
     log_message("\n" + "="*80, log_file=log_file)
     log_message("Pipeline completed successfully!", log_file=log_file)
@@ -240,6 +350,7 @@ def main():
     print(f"  - Blending results: {os.path.join(output_dir, 'blending_results')}")
     print(f"  - Visualizations: {os.path.join(viz_dir)}")
     print(f"  - Reports: {reports_dir}")
+    print(f"  - Validation: {os.path.join(output_dir, 'validation')}")
     print("="*80)
 
 
