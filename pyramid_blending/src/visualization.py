@@ -267,3 +267,159 @@ def create_side_by_side_comparison(image1, image2, title1, title2, output_path):
     plt.tight_layout()
     plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
+
+
+def normalize_laplacian(laplacian_img, method='min_max'):
+    """
+    Normalize Laplacian image for visualization
+
+    Laplacian images contain negative values, so normalization is needed
+
+    Args:
+        laplacian_img: Laplacian image (can have negative values)
+        method: Normalization method
+            - 'min_max': Normalize to [0, 1] range
+            - 'absolute': Take absolute value
+            - 'centered': Center at 0.5 (negative=darker, positive=brighter)
+
+    Returns:
+        normalized: Normalized image in [0, 1] range
+    """
+    if method == 'min_max':
+        # Min-Max normalization
+        min_val = np.min(laplacian_img)
+        max_val = np.max(laplacian_img)
+
+        if max_val - min_val > 0:
+            normalized = (laplacian_img - min_val) / (max_val - min_val)
+        else:
+            normalized = np.zeros_like(laplacian_img)
+
+    elif method == 'absolute':
+        # Take absolute value and normalize
+        abs_img = np.abs(laplacian_img)
+        max_val = np.max(abs_img)
+
+        if max_val > 0:
+            normalized = abs_img / max_val
+        else:
+            normalized = abs_img
+
+    elif method == 'centered':
+        # Center at 0.5, scale to [0, 1]
+        max_abs = np.max(np.abs(laplacian_img))
+
+        if max_abs > 0:
+            normalized = (laplacian_img / (2 * max_abs)) + 0.5
+            normalized = np.clip(normalized, 0, 1)
+        else:
+            normalized = np.ones_like(laplacian_img) * 0.5
+
+    else:
+        raise ValueError(f"Unknown normalization method: {method}")
+
+    return normalized
+
+
+def visualize_pyramid_detailed_layout(gaussian_pyr, laplacian_pyr, output_path):
+    """
+    Visualize Gaussian & Laplacian Pyramid in detailed 3-column layout
+
+    Args:
+        gaussian_pyr: List of Gaussian pyramid images [G0, G1, ..., G5]
+        laplacian_pyr: List of Laplacian pyramid images [L0, L1, ..., L5]
+        output_path: Output file path
+
+    Layout:
+        - Column 0: Gaussian Pyramid (original color)
+        - Column 1: Laplacian Pyramid (JET colormap)
+        - Column 2: Laplacian Pyramid (normalized grayscale)
+        - 6 rows: Level 0 to Level 5
+    """
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    n_levels = len(gaussian_pyr)
+
+    # Create figure with GridSpec
+    fig = plt.figure(figsize=(24, 16), dpi=150)
+    gs = fig.add_gridspec(nrows=n_levels, ncols=3, hspace=0.4, wspace=0.3)
+
+    # Add main title
+    fig.suptitle('Gaussian Pyramid & Laplacian Pyramid Analysis',
+                 fontsize=20, fontweight='bold', y=0.995)
+
+    # Level descriptions
+    gaussian_descriptions = [
+        'Original', '1/2 downsampled', '1/4 downsampled',
+        '1/8 downsampled', '1/16 downsampled', 'Base layer'
+    ]
+
+    laplacian_descriptions = [
+        'High-freq detail', 'Mid-high freq', 'Mid freq',
+        'Mid-low freq', 'Low freq', 'Base (G5)'
+    ]
+
+    for level in range(n_levels):
+        # Get images
+        gaussian_img = gaussian_pyr[level]
+        laplacian_img = laplacian_pyr[level]
+
+        # Get size
+        h, w = gaussian_img.shape[:2]
+        size_str = f"{h}×{w}"
+
+        # Column 0: Gaussian Pyramid (original color)
+        ax_g = fig.add_subplot(gs[level, 0])
+
+        # Normalize Gaussian for display
+        if gaussian_img.dtype != np.uint8:
+            gaussian_display = np.clip(gaussian_img, 0, 1)
+        else:
+            gaussian_display = gaussian_img / 255.0
+
+        # Handle grayscale vs color
+        if len(gaussian_display.shape) == 2:
+            ax_g.imshow(gaussian_display, cmap='gray')
+        elif gaussian_display.shape[2] == 1:
+            ax_g.imshow(gaussian_display[:, :, 0], cmap='gray')
+        else:
+            ax_g.imshow(gaussian_display)
+
+        ax_g.set_title(f'Gaussian Level {level}\n{size_str}\n{gaussian_descriptions[level]}',
+                      fontsize=11, fontweight='bold')
+        ax_g.axis('off')
+
+        # Column 1: Laplacian Pyramid (JET colormap)
+        ax_l1 = fig.add_subplot(gs[level, 1])
+
+        # Convert to grayscale if needed for colormap
+        if len(laplacian_img.shape) == 3:
+            laplacian_gray = np.mean(laplacian_img, axis=2)
+        else:
+            laplacian_gray = laplacian_img
+
+        # Apply JET colormap
+        im1 = ax_l1.imshow(laplacian_gray, cmap='jet')
+        ax_l1.set_title(f'Laplacian Level {level}\n{size_str}\n{laplacian_descriptions[level]}',
+                       fontsize=11, fontweight='bold')
+        ax_l1.axis('off')
+
+        # Add colorbar for JET
+        # plt.colorbar(im1, ax=ax_l1, fraction=0.046, pad=0.04)
+
+        # Column 2: Laplacian Pyramid (normalized grayscale)
+        ax_l2 = fig.add_subplot(gs[level, 2])
+
+        # Normalize Laplacian
+        laplacian_normalized = normalize_laplacian(laplacian_gray, method='min_max')
+
+        ax_l2.imshow(laplacian_normalized, cmap='gray', vmin=0, vmax=1)
+        ax_l2.set_title(f'Laplacian (Brightened)\n{size_str}\n{laplacian_descriptions[level]}',
+                       fontsize=11, fontweight='bold')
+        ax_l2.axis('off')
+
+    # Save figure
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.close()
+
+    print(f"✓ Detailed pyramid layout saved to: {output_path}")

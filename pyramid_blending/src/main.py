@@ -19,7 +19,7 @@ from .metrics import (calculate_all_metrics, save_metrics_report,
                      print_metrics_table, generate_analysis_summary)
 from .visualization import (visualize_pyramid_levels, visualize_blending_comparison,
                            plot_quality_metrics, plot_histogram_comparison,
-                           visualize_level_comparison)
+                           visualize_level_comparison, visualize_pyramid_detailed_layout)
 
 
 def main():
@@ -160,6 +160,7 @@ def main():
                             os.path.join(viz_dir, 'pyramid_comparison.png'))
 
     # Visualize blending comparison
+    # Map display names to metric keys
     blending_results = {
         'Direct Blending': all_results.get('direct'),
         'Pyramid (3-level)': all_results.get(3),
@@ -170,7 +171,16 @@ def main():
     # Remove None values
     blending_results = {k: v for k, v in blending_results.items() if v is not None}
 
-    visualize_blending_comparison(blending_results, all_metrics,
+    # Create mapped metrics dictionary for visualization
+    metrics_mapped = {
+        'Direct Blending': all_metrics.get('direct_blending', {}),
+        'Pyramid (3-level)': all_metrics.get('pyramid_3level', {}),
+        'Pyramid (5-level)': all_metrics.get('pyramid_5level', {}),
+        'Pyramid (6-level)': all_metrics.get('pyramid_6level', {}),
+        'LAB Blend (5-level)': all_metrics.get('lab_blend_5level', {})
+    }
+
+    visualize_blending_comparison(blending_results, metrics_mapped,
                                  os.path.join(viz_dir, 'blending_comparison.png'))
 
     # Visualize level comparison
@@ -192,6 +202,15 @@ def main():
     hist_results = {k: v for k, v in hist_results.items() if v is not None}
     plot_histogram_comparison(hist_results,
                             os.path.join(viz_dir, 'histogram_comparison.png'))
+
+    # Detailed Gaussian & Laplacian Pyramid visualization
+    print("\n  Creating detailed pyramid visualization...")
+    log_message("Creating detailed pyramid visualization", log_file=log_file)
+    visualize_pyramid_detailed_layout(
+        gaussian_pyr=hand_gp_cv,
+        laplacian_pyr=hand_lap,
+        output_path=os.path.join(viz_dir, 'pyramid_detailed_layout.png')
+    )
 
     # ========================================================================
     # Phase 7: Save Reports

@@ -1,0 +1,27 @@
+{
+  "pyramid_3level": {
+    "ssim": -0.0159,
+    "mse": 0.1997,
+    "psnr": 7.0
+  },
+  "pyramid_5level": {
+    "ssim": -0.0591,
+    "mse": 0.1904,
+    "psnr": 7.2
+  },
+  "pyramid_6level": {
+    "ssim": 0.9924,
+    "mse": 0.0006,
+    "psnr": 32.07
+  },
+  "direct_blending": {
+    "ssim": 1.0,
+    "mse": 0.0,
+    "psnr": "inf"
+  },
+  "lab_blend_5level": {
+    "ssim": 0.8022,
+    "mse": 0.0325,
+    "psnr": 14.88
+  }
+}

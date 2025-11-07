@@ -127,6 +127,14 @@ def blend_pyramids_at_level(lap1, lap2, mask_gp, levels=None):
             if len(mask.shape) == 2:
                 mask = mask[:, :, np.newaxis]
 
+        # Match mask dimensions to Laplacian dimensions
+        # If L1 is 2D (grayscale), mask should be 2D
+        # If L1 is 3D (color), mask should be 3D
+        if len(L1.shape) == 2 and len(mask.shape) == 3:
+            mask = mask[:, :, 0]  # Remove channel dimension
+        elif len(L1.shape) == 3 and len(mask.shape) == 2:
+            mask = mask[:, :, np.newaxis]  # Add channel dimension
+
         # Blend: L_blended = L1 * (1 - mask) + L2 * mask
         L_blended = L1 * (1 - mask) + L2 * mask
 

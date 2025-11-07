@@ -174,21 +174,27 @@ def run_all_comparisons(hand_img, eye_img, mask, hand_lap, eye_lap, mask_gp,
     all_results = {}
     all_metrics = {}
 
-    # Use pyramid blending (5-level) as reference
-    reference = pyramid_blending(hand_lap, eye_lap, mask_gp, 5)
+    # First, create direct blending (baseline/reference)
+    direct_result = direct_blending(hand_img, eye_img, mask)
 
-    # Compare pyramid levels
+    print(f"\n[Debug] Reference shape: {direct_result.shape}, dtype: {direct_result.dtype}")
+
+    # Use direct blending as reference for comparison
+    reference = direct_result
+
+    # Compare pyramid levels (using direct blend as reference)
     level_results, level_metrics = compare_pyramid_levels(
         hand_lap, eye_lap, mask_gp, hand_img, eye_img,
-        output_dir, reference=None  # No reference for level comparison
+        output_dir, reference=reference
     )
+    print(f"[Debug] Level metrics keys: {list(level_metrics.keys())}")
     all_results.update(level_results)
     all_metrics.update(level_metrics)
 
     # Compare direct vs pyramid
     direct_results, direct_metrics = compare_direct_vs_pyramid(
         hand_img, eye_img, mask, hand_lap, eye_lap, mask_gp,
-        output_dir, reference=None
+        output_dir, reference=reference
     )
     all_results.update(direct_results)
     all_metrics.update(direct_metrics)
@@ -196,7 +202,7 @@ def run_all_comparisons(hand_img, eye_img, mask, hand_lap, eye_lap, mask_gp,
     # Compare color spaces
     color_results, color_metrics = compare_color_spaces(
         hand_lap, eye_lap, mask_gp, hand_img, eye_img,
-        output_dir, reference=None
+        output_dir, reference=reference
     )
     all_results.update(color_results)
     all_metrics.update(color_metrics)

@@ -134,8 +134,12 @@ def compare_methods(metrics_dict):
         metrics_dict: Dictionary of metrics
 
     Returns:
-        comparison: Dictionary with best performers
+        comparison: Dictionary with best performers (None if no metrics)
     """
+    # Handle empty metrics
+    if not metrics_dict:
+        return None
+
     # Find best SSIM (higher is better)
     best_ssim_method = max(metrics_dict.items(),
                           key=lambda x: x[1]['ssim'])
@@ -182,23 +186,31 @@ def generate_analysis_summary(metrics_dict, output_path):
         f.write("Image Pyramid Blending - Analysis Summary\n")
         f.write("="*80 + "\n\n")
 
-        f.write("Best Performers:\n")
-        f.write(f"  - Highest SSIM: {comparison['best_ssim']['method']} "
-               f"({comparison['best_ssim']['value']:.4f})\n")
-        f.write(f"  - Lowest MSE: {comparison['best_mse']['method']} "
-               f"({comparison['best_mse']['value']:.4f})\n")
-        f.write(f"  - Highest PSNR: {comparison['best_psnr']['method']} "
-               f"({comparison['best_psnr']['value']:.2f})\n\n")
+        if comparison:
+            f.write("Best Performers:\n")
+            f.write(f"  - Highest SSIM: {comparison['best_ssim']['method']} "
+                   f"({comparison['best_ssim']['value']:.4f})\n")
+            f.write(f"  - Lowest MSE: {comparison['best_mse']['method']} "
+                   f"({comparison['best_mse']['value']:.4f})\n")
+            f.write(f"  - Highest PSNR: {comparison['best_psnr']['method']} "
+                   f"({comparison['best_psnr']['value']:.2f})\n\n")
+        else:
+            f.write("No metrics available for comparison.\n\n")
 
-        f.write("Detailed Metrics:\n")
-        f.write("-"*80 + "\n")
+        if metrics_dict:
+            f.write("Detailed Metrics:\n")
+            f.write("-"*80 + "\n")
 
-        for method, metrics in sorted(metrics_dict.items()):
-            f.write(f"\n{method}:\n")
-            f.write(f"  SSIM: {metrics['ssim']:.4f}\n")
-            f.write(f"  MSE:  {metrics['mse']:.4f}\n")
-            psnr_str = f"{metrics['psnr']:.2f}" if metrics['psnr'] != float('inf') else "inf"
-            f.write(f"  PSNR: {psnr_str}\n")
+            for method, metrics in sorted(metrics_dict.items()):
+                f.write(f"\n{method}:\n")
+                f.write(f"  SSIM: {metrics['ssim']:.4f}\n")
+                f.write(f"  MSE:  {metrics['mse']:.4f}\n")
+                psnr_str = f"{metrics['psnr']:.2f}" if metrics['psnr'] != float('inf') else "inf"
+                f.write(f"  PSNR: {psnr_str}\n")
+        else:
+            f.write("Detailed Metrics:\n")
+            f.write("-"*80 + "\n")
+            f.write("No metrics calculated (reference images not provided).\n")
 
         f.write("\n" + "="*80 + "\n")
 
