@@ -85,12 +85,12 @@ def visualize_blending_comparison(results_dict, metrics_dict, output_path):
 
         axes[i].imshow(display_img)
 
-        # Get metrics
-        metrics = metrics_dict.get(method, {})
-        ssim_val = metrics.get('ssim', 0)
-        mse_val = metrics.get('mse', 0)
+        # Get metrics (but don't display them)
+        # metrics = metrics_dict.get(method, {})
+        # ssim_val = metrics.get('ssim', 0)
+        # mse_val = metrics.get('mse', 0)
 
-        axes[i].set_title(f"{method}\nSSIM: {ssim_val:.4f} | MSE: {mse_val:.4f}",
+        axes[i].set_title(f"{method}",
                          fontsize=10)
         axes[i].axis('off')
 
@@ -219,12 +219,12 @@ def visualize_level_comparison(results_dict, metrics_dict, output_path):
 
         axes[i].imshow(display_img)
 
-        # Get metrics
-        metrics = metrics_dict.get(f'pyramid_{level}level', {})
-        ssim_val = metrics.get('ssim', 0)
-        mse_val = metrics.get('mse', 0)
+        # Get metrics (but don't display them)
+        # metrics = metrics_dict.get(f'pyramid_{level}level', {})
+        # ssim_val = metrics.get('ssim', 0)
+        # mse_val = metrics.get('mse', 0)
 
-        axes[i].set_title(f"{level}-Level Pyramid\nSSIM: {ssim_val:.4f} | MSE: {mse_val:.4f}",
+        axes[i].set_title(f"Level {level}",
                          fontsize=10)
         axes[i].axis('off')
 
