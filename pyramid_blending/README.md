@@ -22,8 +22,15 @@ pyramid_blending/
 ├── output/                     # 출력 결과 (자동 생성)
 │   ├── preprocessed/           # 전처리된 이미지
 │   ├── pyramids/               # Pyramid 레벨 이미지들
+│   │   ├── hand_gaussian/      # 손 Gaussian pyramid
+│   │   ├── eye_gaussian/       # 눈 Gaussian pyramid
+│   │   ├── mask_gaussian/      # 마스크 Gaussian pyramid
+│   │   ├── hand_laplacian/     # 손 Laplacian pyramid
+│   │   ├── eye_laplacian/      # 눈 Laplacian pyramid
+│   │   └── blend_laplacian/    # 블렌딩된 Laplacian pyramid
 │   ├── blending_results/       # 최종 합성 결과
 │   ├── visualization/          # 비교 시각화
+│   ├── validation/             # 검증 리포트
 │   └── reports/                # 메트릭 및 로그
 ├── src/                        # 소스 코드
 │   ├── main.py                 # 메인 실행 파일
@@ -34,6 +41,7 @@ pyramid_blending/
 │   ├── comparison.py
 │   ├── metrics.py
 │   ├── visualization.py
+│   ├── validation.py
 │   └── utils.py
 ├── requirements.txt            # 의존성 패키지
 ├── run.py                      # 실행 스크립트
@@ -76,11 +84,13 @@ pyramid_blending/
 ### 2. Pyramid 생성
 - **Gaussian Pyramid**: OpenCV 및 Raw Convolution 두 가지 방식
 - **Laplacian Pyramid**: 각 레벨별 디테일 정보 추출
-- 5단계 pyramid (640×480 → 40×30)
+- 6단계 pyramid (레벨 0-5: 640×480 → 20×15)
 
 ### 3. Blending 방법
 - **Direct Blending**: 단순 알파 블렌딩
-- **Pyramid Blending**: 3/5/6 단계 pyramid 블렌딩
+- **Pyramid Blending**: 레벨별 재구성 (0-5 레벨)
+  - 0level: 완전 재구성 (가장 선명)
+  - 5level: 기본 레벨만 (가장 블러)
 - **LAB Blending**: LAB 색공간에서 블렌딩
 
 ### 4. 성능 평가
@@ -93,6 +103,14 @@ pyramid_blending/
 - Blending 방법별 비교
 - 품질 메트릭 그래프
 - 명도 히스토그램
+- Gaussian/Laplacian Pyramid 상세 레이아웃
+
+### 6. 검증 파이프라인
+- Gaussian Pyramid 검증 (크기, 값 범위, 분산 감소)
+- Laplacian Pyramid 검증 (재구성 정확성, 특성)
+- OpenCV vs Raw 구현 비교
+- Blending 프로세스 검증
+- 최종 결과 품질 검증
 
 ## 출력 결과물
 
@@ -100,13 +118,20 @@ pyramid_blending/
 
 ### Blending Results
 - `direct_blend.jpg` - Direct blending 결과
-- `pyramid_3level.jpg` - 3단계 pyramid blending
-- `pyramid_5level.jpg` - 5단계 pyramid blending (권장)
-- `pyramid_6level.jpg` - 6단계 pyramid blending
+- `pyramid_blend_0level.jpg` - 레벨 0까지 재구성 (가장 선명)
+- `pyramid_blend_1level.jpg` - 레벨 1까지 재구성
+- `pyramid_blend_2level.jpg` - 레벨 2까지 재구성
+- `pyramid_blend_3level.jpg` - 레벨 3까지 재구성
+- `pyramid_blend_4level.jpg` - 레벨 4까지 재구성
+- `pyramid_blend_5level.jpg` - 레벨 5만 (가장 블러, 픽셀화)
 - `lab_blend_5level.jpg` - LAB 색공간 blending
+
+### Pyramid Levels (pyramids/blend_laplacian/)
+- `laplacian_level_0.jpg` ~ `laplacian_level_5.jpg` - 블렌딩된 Laplacian pyramid 각 레벨
 
 ### Visualization
 - `pyramid_comparison.png` - 모든 pyramid 레벨 시각화
+- `pyramid_detailed_layout.png` - Gaussian/Laplacian Pyramid 상세 레이아웃
 - `blending_comparison.png` - Blending 방법 비교
 - `level_comparison.png` - Pyramid 단계별 비교
 - `quality_metrics.png` - 품질 메트릭 그래프
@@ -116,6 +141,10 @@ pyramid_blending/
 - `metrics.json` - 모든 성능 지표 (JSON 형식)
 - `processing_log.txt` - 상세 처리 로그
 - `analysis_summary.txt` - 분석 요약
+
+### Validation
+- `validation_report.json` - 검증 결과 (JSON 형식)
+- `validation_summary.txt` - 검증 요약
 
 ## 예상 실행 결과
 
@@ -131,25 +160,41 @@ Image Pyramid Blending Pipeline
 
 [Phase 2] Gaussian Pyramid Generation (OpenCV)
   ✓ Level 0: (480, 640, 3) - Time: 0.00ms
-  ✓ Level 1: (240, 320, 3) - Time: 3.45ms
-  ✓ Level 2: (120, 160, 3) - Time: 1.23ms
-  ✓ Level 3: (60, 80, 3) - Time: 0.45ms
-  ✓ Level 4: (30, 40, 3) - Time: 0.15ms
-  Total Memory: 4.20 MB
+  ✓ Level 1: (240, 320, 3) - Time: 0.88ms
+  ✓ Level 2: (120, 160, 3) - Time: 0.09ms
+  ✓ Level 3: (60, 80, 3) - Time: 0.03ms
+  ✓ Level 4: (30, 40, 3) - Time: 0.03ms
+  ✓ Level 5: (15, 20, 3) - Time: 0.02ms
+  Total Memory: 4.69 MB
 
 [Phase 3] Gaussian Pyramid Generation (Raw Convolution)
   Using Gaussian kernel: [[1,4,6,4,1], ...]
   ...
 
 [Phase 4] Laplacian Pyramid Generation
-  ✓ Hand Laplacian: 5 levels
-  ✓ Eye Laplacian: 5 levels
+  ✓ Hand Laplacian: 6 levels
+  ✓ Eye Laplacian: 6 levels
 
 [Phase 5] Blending
-  ...
+  [Comparison] Pyramid Reconstruction Levels (0-5)
+    Building 6-level pyramid...
+    Saving blended Laplacian pyramid levels...
+    ✓ Saved 6 Laplacian levels
+    Generating pyramid_blend_0level.jpg...
+    Generating pyramid_blend_1level.jpg...
+    ...
 
 [Phase 6] Visualization & Reports
   ✓ All visualizations saved
+  ✓ Detailed pyramid layout saved
+
+[VALIDATION PHASE] Pyramid Blending Algorithm Verification
+  [Phase 1] Gaussian Pyramid 검증...
+  [Phase 2] Laplacian Pyramid 검증...
+  [Phase 3] Blending 프로세스 검증...
+  [Phase 4] Reconstruction 검증...
+  [Phase 5] 최종 결과 품질 검증...
+  ✓ Validation Complete!
 
 ✅ All completed successfully!
 ```
