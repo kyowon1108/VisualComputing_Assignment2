@@ -99,26 +99,29 @@ def compare_pyramid_levels(hand_lap, eye_lap, mask_gp, hand_rgb, eye_rgb,
 
     print(f"    ✓ Saved {len(blended_lap)} Laplacian levels")
 
-    # Now reconstruct to different stopping levels
-    for stop_level in range(6):
-        print(f"  Generating pyramid_blend_{stop_level}level.jpg (stop reconstruction at level {stop_level})...")
+    # Now reconstruct to different minimum levels
+    for min_level in range(6):
+        # Explanation:
+        # - to_L0 = reconstruct all levels (L5→L4→L3→L2→L1→L0), best quality
+        # - to_L5 = reconstruct to L5 only (base level), coarse/blurry
+        print(f"  Generating pyramid_blend_to_L{min_level}.jpg (reconstruct down to level {min_level})...")
 
-        # Reconstruct with stopping point
+        # Reconstruct with minimum level
         blended = reconstruct_from_laplacian(blended_lap,
                                             target_shape=(480, 640),
-                                            stop_at_level=stop_level)
+                                            min_reconstruction_level=min_level)
 
-        results[stop_level] = blended
+        results[min_level] = blended
 
-        # Save result with new naming: pyramid_blend_0level.jpg ~ pyramid_blend_5level.jpg
+        # Save result with new naming: pyramid_blend_to_L0.jpg ~ pyramid_blend_to_L5.jpg
         output_path = os.path.join(output_dir, 'blending_results',
-                                  f'pyramid_blend_{stop_level}level.jpg')
+                                  f'pyramid_blend_to_L{min_level}.jpg')
         save_image(blended, output_path)
 
         # Calculate metrics if reference provided
         if reference is not None:
             metrics = calculate_metrics(blended, reference)
-            metrics_dict[f'{stop_level}level'] = metrics
+            metrics_dict[f'to_L{min_level}'] = metrics
             print(f"    ✓ SSIM: {metrics['ssim']:.4f}, MSE: {metrics['mse']:.4f}")
 
     return results, metrics_dict

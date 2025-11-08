@@ -177,6 +177,113 @@ def lab_to_rgb(lab_image):
     return rgb_image
 
 
+def yuv_blending(hand_lap, eye_lap, mask_gp, hand_rgb, eye_rgb, levels=5):
+    """
+    YUV color space blending
+
+    Args:
+        hand_lap: Hand Laplacian pyramid (RGB)
+        eye_lap: Eye Laplacian pyramid (RGB)
+        mask_gp: Mask Gaussian pyramid
+        hand_rgb: Original hand image (for color reference)
+        eye_rgb: Original eye image (for color reference)
+        levels: Number of pyramid levels to use
+
+    Returns:
+        blended: Blended image in RGB
+    """
+    # Convert RGB to YUV
+    hand_yuv = rgb_to_yuv(hand_rgb)
+    eye_yuv = rgb_to_yuv(eye_rgb)
+
+    # Split YUV channels
+    hand_y, hand_u, hand_v = cv2.split(hand_yuv)
+    eye_y, eye_u, eye_v = cv2.split(eye_yuv)
+
+    # Build Laplacian pyramids for Y channel only
+    from .pyramid_generation import build_pyramids
+
+    hand_y_gp, hand_y_lap, _ = build_pyramids(hand_y, levels, method='opencv')
+    eye_y_gp, eye_y_lap, _ = build_pyramids(eye_y, levels, method='opencv')
+
+    # Blend Y channel using pyramid blending
+    blended_y_lap = blend_pyramids_at_level(hand_y_lap, eye_y_lap, mask_gp, levels)
+    blended_y = reconstruct_from_laplacian(blended_y_lap)
+
+    # For U and V channels, use direct blending
+    mask_2d = mask_gp[0]
+    if len(mask_2d.shape) == 3:
+        mask_2d = mask_2d[:, :, 0]
+
+    blended_u = hand_u * (1 - mask_2d) + eye_u * mask_2d
+    blended_v = hand_v * (1 - mask_2d) + eye_v * mask_2d
+
+    # Merge YUV channels
+    blended_yuv = cv2.merge([blended_y, blended_u, blended_v])
+
+    # Convert back to RGB
+    blended_rgb = yuv_to_rgb(blended_yuv)
+
+    return blended_rgb
+
+
+def rgb_to_yuv(rgb_image):
+    """
+    Convert RGB image to YUV color space
+
+    Args:
+        rgb_image: RGB image (float32, [0, 1]) or (uint8, [0, 255])
+
+    Returns:
+        yuv_image: YUV image (normalized [0, 1])
+    """
+    # Ensure float32 in [0, 1]
+    if rgb_image.dtype == np.uint8:
+        rgb_image = rgb_image.astype(np.float32) / 255.0
+
+    # Clip to valid range
+    rgb_image = np.clip(rgb_image, 0, 1)
+
+    # Convert to uint8 for OpenCV
+    rgb_uint8 = (rgb_image * 255).astype(np.uint8)
+
+    # Convert RGB to BGR for OpenCV
+    bgr_uint8 = cv2.cvtColor(rgb_uint8, cv2.COLOR_RGB2BGR)
+
+    # Convert BGR to YUV
+    yuv_image = cv2.cvtColor(bgr_uint8, cv2.COLOR_BGR2YUV)
+
+    # Normalize to [0, 1]
+    yuv_image = yuv_image.astype(np.float32) / 255.0
+
+    return yuv_image
+
+
+def yuv_to_rgb(yuv_image):
+    """
+    Convert YUV image to RGB color space
+
+    Args:
+        yuv_image: YUV image (normalized [0, 1])
+
+    Returns:
+        rgb_image: RGB image (float32, [0, 1])
+    """
+    # Denormalize to [0, 255]
+    yuv_uint8 = (np.clip(yuv_image, 0, 1) * 255).astype(np.uint8)
+
+    # Convert YUV to BGR
+    bgr_uint8 = cv2.cvtColor(yuv_uint8, cv2.COLOR_YUV2BGR)
+
+    # Convert BGR to RGB
+    rgb_uint8 = cv2.cvtColor(bgr_uint8, cv2.COLOR_BGR2RGB)
+
+    # Normalize to [0, 1]
+    rgb_image = rgb_uint8.astype(np.float32) / 255.0
+
+    return rgb_image
+
+
 def multi_level_blending(hand_lap, eye_lap, mask_gp, level_configs):
     """
     Perform blending with different level configurations
