@@ -105,7 +105,7 @@ def gaussian_pyramid_raw(image, levels=5, output_dir=None, name='image_raw'):
 
 def laplacian_pyramid(gaussian_pyramid, output_dir=None, name='image'):
     """
-    Generate Laplacian pyramid from Gaussian pyramid
+    Generate Laplacian pyramid from Gaussian pyramid using OpenCV
 
     Args:
         gaussian_pyramid: List of Gaussian pyramid levels
@@ -153,6 +153,73 @@ def laplacian_pyramid(gaussian_pyramid, output_dir=None, name='image'):
     return lp
 
 
+def laplacian_pyramid_raw(gaussian_pyramid, output_dir=None, name='image_raw'):
+    """
+    Generate Laplacian pyramid from Gaussian pyramid using raw implementation
+
+    This is the raw implementation without OpenCV dependencies:
+    - Uses custom upsample_raw() instead of cv2.pyrUp()
+    - Upsampling: zero-insertion + Gaussian convolution + 4x normalization
+
+    Algorithm:
+    For each level i (except last):
+        L[i] = G[i] - upsample(G[i+1])
+    L[n] = G[n]  (residual: smallest Gaussian level)
+
+    Args:
+        gaussian_pyramid: List of Gaussian pyramid levels
+        output_dir: Optional directory to save pyramid images
+        name: Name prefix for saved images
+
+    Returns:
+        lp: List of Laplacian images [L0, L1, ..., Ln-1, Gn]
+    """
+    from .utils import gaussian_kernel_5x5, upsample_raw
+
+    lp = []
+    levels = len(gaussian_pyramid)
+    kernel = gaussian_kernel_5x5()
+
+    # For each level except the last
+    for i in range(levels - 1):
+        # Get current Gaussian level
+        G_i = gaussian_pyramid[i]
+
+        # Get next Gaussian level and upsample it using raw implementation
+        G_i1 = gaussian_pyramid[i + 1]
+        G_i1_upsampled = upsample_raw(G_i1, kernel)
+
+        # Ensure same size (handle rounding issues from odd dimensions)
+        if G_i1_upsampled.shape[:2] != G_i.shape[:2]:
+            # Crop to match (upsampling can create slightly larger image)
+            h, w = G_i.shape[:2]
+            G_i1_upsampled = G_i1_upsampled[:h, :w]
+            if len(G_i.shape) == 3:
+                G_i1_upsampled = G_i1_upsampled[:, :, :G_i.shape[2]]
+
+        # Laplacian = G_i - upsample(G_i+1)
+        # This captures the details lost during downsampling
+        L_i = G_i - G_i1_upsampled
+        lp.append(L_i)
+
+        # Save if output_dir provided
+        if output_dir:
+            pyramid_dir = os.path.join(output_dir, 'pyramids', f'{name}_laplacian')
+            save_image(L_i, os.path.join(pyramid_dir, f'level_{i}.png'))
+
+    # Add the smallest Gaussian level as the last Laplacian level
+    # This is the residual (base) that cannot be decomposed further
+    lp.append(gaussian_pyramid[-1])
+
+    # Save last level
+    if output_dir:
+        pyramid_dir = os.path.join(output_dir, 'pyramids', f'{name}_laplacian')
+        save_image(gaussian_pyramid[-1],
+                  os.path.join(pyramid_dir, f'level_{levels-1}.png'))
+
+    return lp
+
+
 def build_pyramids(image, levels=5, method='opencv', output_dir=None, name='image'):
     """
     Build both Gaussian and Laplacian pyramids
@@ -171,12 +238,12 @@ def build_pyramids(image, levels=5, method='opencv', output_dir=None, name='imag
     """
     if method == 'opencv':
         gaussian_pyr, times = gaussian_pyramid_opencv(image, levels, output_dir, name)
+        laplacian_pyr = laplacian_pyramid(gaussian_pyr, output_dir, name)
     elif method == 'raw':
         gaussian_pyr, times = gaussian_pyramid_raw(image, levels, output_dir, name)
+        laplacian_pyr = laplacian_pyramid_raw(gaussian_pyr, output_dir, name)
     else:
         raise ValueError(f"Unknown method: {method}")
-
-    laplacian_pyr = laplacian_pyramid(gaussian_pyr, output_dir, name)
 
     return gaussian_pyr, laplacian_pyr, times
 

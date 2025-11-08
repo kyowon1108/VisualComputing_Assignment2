@@ -221,6 +221,49 @@ def convolve2d(image, kernel):
         return np.stack(channels, axis=2)
 
 
+def upsample_raw(image, kernel):
+    """
+    Upsample image by 2x using raw implementation (inverse of downsampling)
+
+    This is the raw implementation of cv2.pyrUp():
+    1. Create 2x size image with zeros
+    2. Place original pixels at even positions
+    3. Apply Gaussian convolution for interpolation
+    4. Multiply by 4 to normalize (compensate for zero insertion)
+
+    Args:
+        image: Input image to upsample
+        kernel: Gaussian kernel for interpolation
+
+    Returns:
+        upsampled: 2x upsampled image
+    """
+    h, w = image.shape[:2]
+
+    # Create output image with 2x size
+    new_h, new_w = h * 2, w * 2
+
+    if len(image.shape) == 2:
+        # Single channel
+        upsampled = np.zeros((new_h, new_w), dtype=image.dtype)
+        # Place original pixels at even positions (0, 2, 4, ...)
+        upsampled[::2, ::2] = image
+    else:
+        # Multi-channel
+        upsampled = np.zeros((new_h, new_w, image.shape[2]), dtype=image.dtype)
+        # Place original pixels at even positions
+        upsampled[::2, ::2, :] = image
+
+    # Apply Gaussian convolution for interpolation
+    upsampled = convolve2d(upsampled, kernel)
+
+    # Multiply by 4 to compensate for zero insertion
+    # This is because we inserted 3 zeros for every 1 pixel (4x total pixels)
+    upsampled = upsampled * 4.0
+
+    return upsampled
+
+
 def create_log_file(output_dir):
     """
     Create a new log file
