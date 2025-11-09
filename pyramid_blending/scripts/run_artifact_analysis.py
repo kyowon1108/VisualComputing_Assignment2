@@ -1,33 +1,29 @@
 """
-Boundary Quality Analysis 실행 스크립트
+Artifact Analysis 실행 스크립트
 """
+import sys
+
+# Add parent directory to path to import src modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import os
-from src.preprocessing import load_and_preprocess, create_mask
+from src.preprocessing import create_mask
 from src.utils import load_image
-from src.boundary_analysis import create_boundary_analysis_report
+from src.artifact_analysis import create_artifact_analysis_report
 
 
 def main():
-    """Run boundary quality analysis"""
+    """Run artifact analysis"""
     print("\n" + "="*80)
-    print(" "*20 + "BOUNDARY QUALITY ANALYSIS")
+    print(" "*20 + "ARTIFACT ANALYSIS")
     print("="*80)
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     output_dir = os.path.join(base_dir, 'output')
     blending_dir = os.path.join(output_dir, 'blending_results')
 
-    # 1. Create mask
-    print("\n[Step 1] Creating mask...")
-    mask = create_mask(shape=(480, 640),
-                      center=(325, 315),
-                      axes=(48, 36),
-                      blur_kernel=31,
-                      output_dir=None)
-    print(f"  ✓ Mask: {mask.shape}")
-
-    # 2. Load blending results
-    print("\n[Step 2] Loading blending results...")
+    # Load blending results
+    print("\n[Step 1] Loading blending results...")
     methods_dict = {}
 
     # Direct blending
@@ -36,7 +32,7 @@ def main():
         methods_dict['direct'] = load_image(direct_path)
         print(f"  ✓ Direct blending")
 
-    # Pyramid levels (0-5)
+    # Pyramid levels
     for level in range(6):
         pyramid_path = os.path.join(blending_dir, f'pyramid_blend_{level}level.jpg')
         if os.path.exists(pyramid_path):
@@ -53,17 +49,16 @@ def main():
 
     if len(methods_dict) == 0:
         print("\n❌ No blending results found!")
-        print("Please run main.py first.")
         return
 
-    # 3. Analyze boundary quality
-    print("\n[Step 3] Analyzing boundary quality...")
-    create_boundary_analysis_report(methods_dict, mask, output_dir)
+    # Analyze artifacts
+    print("\n[Step 2] Analyzing artifacts...")
+    create_artifact_analysis_report(methods_dict, output_dir)
 
     print("\n" + "="*80)
-    print(" "*20 + "✓ BOUNDARY ANALYSIS COMPLETE!")
+    print(" "*20 + "✓ ARTIFACT ANALYSIS COMPLETE!")
     print("="*80)
-    print(f"\n📁 Results saved to: {os.path.join(output_dir, 'boundary_analysis')}/")
+    print(f"\n📁 Results saved to: {os.path.join(output_dir, 'artifact_analysis')}/")
     print()
 
 

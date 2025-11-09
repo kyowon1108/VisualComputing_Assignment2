@@ -4,6 +4,10 @@ Comprehensive Comparison Page
 모든 블렌딩 방법을 한 페이지에 종합 비교
 """
 import os
+import sys
+
+# Add parent directory to path to import src modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import json
 import numpy as np
 import matplotlib.pyplot as plt
@@ -265,6 +269,6 @@ def create_comprehensive_comparison(output_dir):
 
 
 if __name__ == '__main__':
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     output_dir = os.path.join(base_dir, 'output')
     create_comprehensive_comparison(output_dir)

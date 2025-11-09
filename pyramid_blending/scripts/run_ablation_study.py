@@ -5,6 +5,11 @@ Ablation Study: Mask Blur Kernel 변화 실험
 블렌딩 품질이 어떻게 변하는지 분석
 """
 import os
+import sys
+
+# Add parent directory to path to import src modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import numpy as np
 import json
 from src.preprocessing import load_and_preprocess, create_mask
@@ -26,7 +31,7 @@ def run_ablation_blur_kernel(blur_values=[11, 31, 51]):
     print(" "*20 + "ABLATION STUDY: MASK BLUR KERNEL")
     print("="*80)
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     output_dir = os.path.join(base_dir, 'output', 'ablation_study')
     os.makedirs(output_dir, exist_ok=True)
 

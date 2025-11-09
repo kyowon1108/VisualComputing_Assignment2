@@ -1,6 +1,11 @@
 """
 ROI Heatmap Analysis 실행 스크립트
 """
+import sys
+
+# Add parent directory to path to import src modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import os
 from src.preprocessing import load_and_preprocess, create_mask
 from src.utils import load_image
@@ -13,7 +18,7 @@ def main():
     print(" "*20 + "ROI HEATMAP ANALYSIS")
     print("="*80)
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     output_dir = os.path.join(base_dir, 'output')
     blending_dir = os.path.join(output_dir, 'blending_results')
 

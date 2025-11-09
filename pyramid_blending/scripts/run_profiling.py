@@ -3,6 +3,11 @@ Performance Profiling Script
 
 처리 속도, 메모리 사용량 측정
 """
+import sys
+
+# Add parent directory to path to import src modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import os
 import time
 import psutil
@@ -54,7 +59,7 @@ def run_profiling():
     print(" "*20 + "PERFORMANCE PROFILING")
     print("="*80)
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     output_dir = os.path.join(base_dir, 'output', 'profiling')
     os.makedirs(output_dir, exist_ok=True)
 

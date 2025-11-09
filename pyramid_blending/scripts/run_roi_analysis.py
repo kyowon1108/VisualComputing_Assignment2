@@ -2,6 +2,11 @@
 ROI Analysis 실행 스크립트
 기존 블렌딩 결과들에 대해 ROI 분석 수행
 """
+import sys
+
+# Add parent directory to path to import src modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import os
 import numpy as np
 from src.roi_analysis import analyze_all_methods, create_roi_summary_table
@@ -16,7 +21,7 @@ def main():
     print("="*80)
 
     # Paths
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     output_dir = os.path.join(base_dir, 'output')
     blending_dir = os.path.join(output_dir, 'blending_results')
 
