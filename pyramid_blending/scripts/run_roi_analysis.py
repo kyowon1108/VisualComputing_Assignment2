@@ -2,12 +2,11 @@
 ROI Analysis 실행 스크립트
 기존 블렌딩 결과들에 대해 ROI 분석 수행
 """
+import os
 import sys
 
 # Add parent directory to path to import src modules
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-import os
 import numpy as np
 from src.roi_analysis import analyze_all_methods, create_roi_summary_table
 from src.preprocessing import load_and_preprocess, create_mask
@@ -53,18 +52,12 @@ def main():
         methods_dict['direct'] = load_image(direct_path)
         print(f"  ✓ Direct blending")
 
-    # Pyramid levels (0-5)
+    # Pyramid levels (to_L0 through to_L5)
     for level in range(6):
-        pyramid_path = os.path.join(blending_dir, f'pyramid_blend_{level}level.jpg')
+        pyramid_path = os.path.join(blending_dir, f'pyramid_blend_to_L{level}.jpg')
         if os.path.exists(pyramid_path):
-            methods_dict[f'pyramid_{level}level'] = load_image(pyramid_path)
-            print(f"  ✓ Pyramid {level}-level")
-
-    # LAB blending
-    lab_path = os.path.join(blending_dir, 'lab_blend_5level.jpg')
-    if os.path.exists(lab_path):
-        methods_dict['lab_5level'] = load_image(lab_path)
-        print(f"  ✓ LAB 5-level")
+            methods_dict[f'pyramid_to_L{level}'] = load_image(pyramid_path)
+            print(f"  ✓ Pyramid to L{level}")
 
     print(f"\n  총 {len(methods_dict)}개 방법 로딩 완료")
 

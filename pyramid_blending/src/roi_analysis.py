@@ -497,7 +497,7 @@ def create_roi_summary_table(all_results, output_path):
     ax.axis('off')
 
     # Prepare table data
-    headers = ['Method', 'ROI-1 (Hand)\nSSIM / MSE', 'ROI-2 (Eye)\nSSIM / Contrast',
+    headers = ['Method', 'ROI-1 (Hand)\nMSE / Texture Var', 'ROI-2 (Eye)\nMSE / Contrast',
                'ROI-3 (Boundary)\nGrad Std / Status']
 
     table_data = []
@@ -506,10 +506,10 @@ def create_roi_summary_table(all_results, output_path):
 
         # ROI-1
         if metrics.get('hand'):
-            ssim_val = metrics['hand'].get('ssim', 'N/A')
             mse_val = metrics['hand'].get('mse', 'N/A')
-            if isinstance(ssim_val, float):
-                row.append(f"{ssim_val:.4f} / {mse_val:.6f}")
+            texture_var = metrics['hand'].get('texture_variance', 'N/A')
+            if isinstance(mse_val, float) and isinstance(texture_var, float):
+                row.append(f"{mse_val:.6f} / {texture_var:.6f}")
             else:
                 row.append('N/A')
         else:
@@ -517,10 +517,10 @@ def create_roi_summary_table(all_results, output_path):
 
         # ROI-2
         if metrics.get('eye'):
-            ssim_val = metrics['eye'].get('ssim', 'N/A')
+            mse_val = metrics['eye'].get('mse', 'N/A')
             contrast = metrics['eye'].get('contrast', 'N/A')
-            if isinstance(ssim_val, float) and isinstance(contrast, float):
-                row.append(f"{ssim_val:.4f} / {contrast:.4f}")
+            if isinstance(mse_val, float) and isinstance(contrast, float):
+                row.append(f"{mse_val:.6f} / {contrast:.4f}")
             else:
                 row.append('N/A')
         else:
