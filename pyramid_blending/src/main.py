@@ -13,7 +13,7 @@ from .preprocessing import load_and_preprocess, create_mask
 from .pyramid_generation import (gaussian_pyramid_opencv, gaussian_pyramid_raw,
                                 laplacian_pyramid, print_pyramid_info,
                                 validate_pyramid_sizes)
-from .blending import direct_blending, pyramid_blending, lab_blending
+from .blending import direct_blending, pyramid_blending
 from .comparison import run_all_comparisons
 from .metrics import (calculate_all_metrics, save_metrics_report,
                      print_metrics_table, generate_analysis_summary)
@@ -39,10 +39,9 @@ def main():
     4. Gaussian Pyramid generation (Raw convolution)
     5. Laplacian Pyramid generation
     6. Direct Blending
-    7. Pyramid Blending (3/5/6 level)
-    8. LAB color space Blending
-    9. Performance metrics calculation
-    10. Visualization and result saving
+    7. Pyramid Blending (multiple levels)
+    8. Performance metrics calculation
+    9. Visualization and result saving
     """
     print("="*80)
     print("Image Pyramid Blending Pipeline")
@@ -171,8 +170,7 @@ def main():
         'Direct Blending': all_results.get('direct'),
         'Pyramid (3-level)': all_results.get(3),
         'Pyramid (5-level)': all_results.get(5),
-        'Pyramid (6-level)': all_results.get(6),
-        'LAB Blend (5-level)': all_results.get('lab')
+        'Pyramid (6-level)': all_results.get(6)
     }
     # Remove None values
     blending_results = {k: v for k, v in blending_results.items() if v is not None}
@@ -182,8 +180,7 @@ def main():
         'Direct Blending': all_metrics.get('direct_blending', {}),
         'Pyramid (3-level)': all_metrics.get('pyramid_3level', {}),
         'Pyramid (5-level)': all_metrics.get('pyramid_5level', {}),
-        'Pyramid (6-level)': all_metrics.get('pyramid_6level', {}),
-        'LAB Blend (5-level)': all_metrics.get('lab_blend_5level', {})
+        'Pyramid (6-level)': all_metrics.get('pyramid_6level', {})
     }
 
     visualize_blending_comparison(blending_results, metrics_mapped,

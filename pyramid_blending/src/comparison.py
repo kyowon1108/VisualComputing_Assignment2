@@ -2,7 +2,7 @@
 Comparison experiments module
 """
 import os
-from .blending import pyramid_blending, lab_blending, direct_blending
+from .blending import pyramid_blending, direct_blending
 from .metrics import calculate_metrics
 from .utils import save_image
 
@@ -173,51 +173,6 @@ def compare_direct_vs_pyramid(hand_img, eye_img, mask, hand_lap, eye_lap,
     return results, metrics_dict
 
 
-def compare_color_spaces(hand_lap, eye_lap, mask_gp, hand_rgb, eye_rgb,
-                         output_dir, reference=None):
-    """
-    Compare RGB vs LAB color space blending
-
-    Args:
-        hand_lap: Hand Laplacian pyramid (RGB)
-        eye_lap: Eye Laplacian pyramid (RGB)
-        mask_gp: Mask Gaussian pyramid
-        hand_rgb: Hand RGB image
-        eye_rgb: Eye RGB image
-        output_dir: Output directory
-        reference: Optional reference image for metrics
-
-    Returns:
-        results: Dictionary of results
-        metrics_dict: Dictionary of metrics
-    """
-    print("\n[Comparison] RGB vs LAB Color Space")
-
-    results = {}
-    metrics_dict = {}
-
-    # RGB blending (already done in previous comparison)
-    print("  RGB blending (5-level)...")
-    rgb_result = pyramid_blending(hand_lap, eye_lap, mask_gp, 5)
-    results['rgb'] = rgb_result
-
-    # LAB blending
-    print("  LAB blending (5-level)...")
-    lab_result = lab_blending(hand_lap, eye_lap, mask_gp, hand_rgb, eye_rgb, 5)
-    results['lab'] = lab_result
-
-    # Save result
-    output_path = os.path.join(output_dir, 'blending_results', 'lab_blend_5level.jpg')
-    save_image(lab_result, output_path)
-
-    if reference is not None:
-        metrics = calculate_metrics(lab_result, reference)
-        metrics_dict['lab_blend_5level'] = metrics
-        print(f"    ✓ SSIM: {metrics['ssim']:.4f}, MSE: {metrics['mse']:.4f}")
-
-    return results, metrics_dict
-
-
 def run_all_comparisons(hand_img, eye_img, mask, hand_lap, eye_lap, mask_gp,
                        output_dir):
     """
@@ -263,13 +218,5 @@ def run_all_comparisons(hand_img, eye_img, mask, hand_lap, eye_lap, mask_gp,
     )
     all_results.update(direct_results)
     all_metrics.update(direct_metrics)
-
-    # Compare color spaces
-    color_results, color_metrics = compare_color_spaces(
-        hand_lap, eye_lap, mask_gp, hand_img, eye_img,
-        output_dir, reference=reference
-    )
-    all_results.update(color_results)
-    all_metrics.update(color_metrics)
 
     return all_results, all_metrics

@@ -35,9 +35,7 @@ def create_comprehensive_comparison(output_dir):
         'direct': 'Direct Blend',
         'pyramid_to_L0': 'Pyramid to L0 (Full)',
         'pyramid_to_L3': 'Pyramid to L3',
-        'pyramid_to_L5': 'Pyramid to L5 (Coarse)',
-        'lab_5level': 'LAB L5',
-        'yuv_5level': 'YUV L5'
+        'pyramid_to_L5': 'Pyramid to L5 (Coarse)'
     }
 
     images = {}
@@ -48,9 +46,6 @@ def create_comprehensive_comparison(output_dir):
             # pyramid_to_L0 -> pyramid_blend_to_L0.jpg
             level = key.replace('pyramid_', '')
             path = os.path.join(blending_dir, f'pyramid_blend_{level}.jpg')
-        elif 'lab' in key or 'yuv' in key:
-            # lab_5level -> lab_blend_5level.jpg
-            path = os.path.join(blending_dir, f'{key.replace("_5level", "_blend_5level")}.jpg')
         else:
             # Other methods
             path = os.path.join(blending_dir, f'{key}.jpg')

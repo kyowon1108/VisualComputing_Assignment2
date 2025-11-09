@@ -86,7 +86,7 @@ def run_ablation_blur_kernel(blur_values=[11, 31, 51]):
         pyramid_result = reconstruct_from_laplacian(
             blended_lap,
             target_shape=(480, 640),
-            stop_at_level=0  # Full reconstruction
+            min_reconstruction_level=0  # Full reconstruction
         )
         pyramid_path = os.path.join(output_dir, f'pyramid_blur{blur_kernel}.jpg')
         save_image(pyramid_result, pyramid_path)

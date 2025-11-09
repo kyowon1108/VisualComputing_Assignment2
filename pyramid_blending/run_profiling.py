@@ -9,7 +9,7 @@ import psutil
 import numpy as np
 from src.preprocessing import load_and_preprocess, create_mask
 from src.pyramid_generation import gaussian_pyramid_opencv, gaussian_pyramid_raw, laplacian_pyramid
-from src.blending import pyramid_blending, lab_blending, yuv_blending, direct_blending
+from src.blending import pyramid_blending, direct_blending
 from src.reconstruction import reconstruct_from_laplacian, blend_pyramids_at_level
 import json
 
@@ -137,26 +137,8 @@ def run_profiling():
     print(f"  Memory: {mem_mb:.2f} MB")
     results['pyramid_blending_rgb'] = {'time_ms': time_ms, 'memory_mb': mem_mb}
 
-    # 8. LAB Blending
-    print("\n[Phase 8] LAB Color Space Blending (5-level)")
-    lab_result, time_ms, mem_mb = profile_operation(
-        lab_blending, hand_lap, eye_lap, mask_gp, hand_img, eye_img, 5
-    )
-    print(f"  Time: {time_ms:.2f} ms")
-    print(f"  Memory: {mem_mb:.2f} MB")
-    results['pyramid_blending_lab'] = {'time_ms': time_ms, 'memory_mb': mem_mb}
-
-    # 9. YUV Blending
-    print("\n[Phase 9] YUV Color Space Blending (5-level)")
-    yuv_result, time_ms, mem_mb = profile_operation(
-        yuv_blending, hand_lap, eye_lap, mask_gp, hand_img, eye_img, 5
-    )
-    print(f"  Time: {time_ms:.2f} ms")
-    print(f"  Memory: {mem_mb:.2f} MB")
-    results['pyramid_blending_yuv'] = {'time_ms': time_ms, 'memory_mb': mem_mb}
-
-    # 10. Different pyramid levels
-    print("\n[Phase 10] Pyramid Blending at Different Levels")
+    # 8. Different pyramid levels
+    print("\n[Phase 8] Pyramid Blending at Different Levels")
     for level in [0, 1, 3, 5]:
         blended_lap_full = blend_pyramids_at_level(hand_lap, eye_lap, mask_gp, None)
         result, time_ms, mem_mb = profile_operation(
@@ -190,8 +172,6 @@ def run_profiling():
         'laplacian': 'Laplacian Pyramid',
         'direct_blending': 'Direct Blending',
         'pyramid_blending_rgb': 'Pyramid Blending (RGB)',
-        'pyramid_blending_lab': 'Pyramid Blending (LAB)',
-        'pyramid_blending_yuv': 'Pyramid Blending (YUV)',
     }
 
     for key, name in operation_names.items():
